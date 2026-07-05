@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAP-MAS - LAYANAN DIGITAL TERPADU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-main: #f8fafc;
+            --bg-gradient: linear-gradient(135deg, #eff6ff 0%, #f1f5f9 100%);
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --border: rgba(226, 232, 240, 0.8);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --glass-blur: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0b1329;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #0b1329 100%);
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-title: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: rgba(51, 85, 117, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            transition: background 0.4s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* Welcome Splash Screen */
+        .welcome-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            text-align: center;
+            padding: 20px;
+        }
+        .splash-logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 3px solid #4f46e5;
+            animation: pulse-glow 2s infinite alternate;
+        }
+        .splash-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .splash-subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 500;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+        .splash-author {
+            font-size: 0.85rem;
+            color: #4f46e5;
+            margin-top: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .splash-loader {
+            margin-top: 30px;
+            width: 140px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        .splash-bar {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background: #4f46e5;
+            animation: fill-bar 1.5s forwards ease-in-out;
+        }
+
+        @keyframes fill-bar {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(79, 70, 229, 0.4); }
+            100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(79, 70, 229, 0.8); }
+        }
+
+        /* Banner Saran Desktop untuk HP */
+        .mobile-notice {
+            display: none;
+            background: #f59e0b;
+            color: #0f172a;
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+
+        .brand-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .app-name { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
+        .app-sub { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+
+        .menu-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .menu-item button {
+            width: 100%;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover button, .menu-item.active button {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .contact-box {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 14px;
+            background: rgba(0,0,0,0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        [data-theme="dark"] .contact-box { background: rgba(255,255,255,0.02); }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            color: var(--text-body);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .contact-link:hover { background: var(--bg-main); transform: translateX(3px); }
+        .contact-link.wa i { color: #22c55e; }
+        .contact-link.ig i { color: #e1306c; }
+        .contact-link.mail i { color: #3b82f6; }
+
+        .main-wrapper {
+            margin-left: 300px;
+            flex-grow: 1;
+            padding: 32px;
+            width: calc(100% - 300px);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 { font-size: 1.5rem; color: var(--text-title); font-weight: 800; }
+
+        .controls-right { display: flex; align-items: center; gap: 14px; }
+        .live-clock {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(var(--glass-blur));
+            padding: 8px 16px; border-radius: 30px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+        }
+        .theme-toggle {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            width: 38px; height: 38px; border-radius: 50%; cursor: pointer; color: var(--text-title);
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        .theme-toggle:hover { transform: scale(1.05); }
+
+        /* Progress Alur Langkah Diagram */
+        .flow-progress-container {
+            background-color: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .flow-line-bar {
+            position: absolute;
+            top: 20px;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: var(--border);
+            z-index: 1;
+        }
+        .flow-line-progress {
+            position: absolute;
+            top: 20px;
+            left: 5%;
+            height: 4px;
+            width: 0%;
+            background: var(--primary);
+            z-index: 2;
+            transition: width 0.4s ease;
+        }
+        .flow-step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            width: 20%;
+            text-align: center;
+        }
+        .node-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-main);
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .node-label {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .flow-step-node.active .node-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 12px rgba(79, 70, 229, 0.4);
+        }
+        .flow-step-node.active .node-label {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .flow-step-node.completed .node-circle {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+        .flow-step-node.completed .node-label {
+            color: var(--success);
+        }
+
+        .grid-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .status-card {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            padding: 24px; border-radius: var(--radius); display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .status-info h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .status-info p { font-size: 1.75rem; font-weight: 800; color: var(--text-title); }
+        .status-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+
+        .app-panel {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border-radius: var(--radius); padding: 28px; display: none;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+        .app-panel.active-panel { display: block; }
+        
+        .panel-header { margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+        .panel-header h2 { font-size: 1.25rem; color: var(--text-title); margin-bottom: 6px; font-weight: 700; }
+        .panel-header p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-body); }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 16px; background-color: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border); border-radius: 10px; color: var(--text-title); font-size: 0.9rem; outline: none;
+            transition: all 0.2s;
+        }
+        [data-theme="dark"] .form-group input, [data-theme="dark"] .form-group select, [data-theme="dark"] .form-group textarea {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
+        .form-group input[readonly] { opacity: 0.7; cursor: not-allowed; background-color: rgba(0,0,0,0.05); }
+
+        .notice-banner {
+            background-color: rgba(79, 70, 229, 0.06); border: 1px solid rgba(79, 70, 229, 0.2);
+            padding: 14px; border-radius: 10px; color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .btn-flex-group { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn-action {
+            padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 10px; color: white;
+            transition: all 0.2s ease;
+        }
+        .btn-action:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-action.wa { background-color: #22c55e; }
+        .btn-action.pdf { background-color: var(--primary); }
+        .btn-action.pdf:disabled { background-color: #64748b; opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-action.secondary { background-color: #475569; }
+
+        .data-table-container { overflow-x: auto; margin-top: 14px; }
+        .custom-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .custom-table th, .custom-table td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .custom-table th { background-color: rgba(0,0,0,0.02); color: var(--text-muted); font-weight: 700; }
+        
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-weight: 500; }
+
+        .app-footer { margin-top: auto; padding-top: 32px; text-align: center; font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center;
+            z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: var(--bg-card); border: 1px solid var(--border); width: 90%; max-width: 600px; height: 85vh;
+            border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-title); }
+        .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+        .modal-body { flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.02); padding: 20px; display: flex; justify-content: center; }
+        .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; align-items: center; }
+
+        #canvas-holder { width: 100%; max-width: 460px; background: white; box-shadow: 0 4px 14px rgba(0,0,0,0.1); border-radius: 4px; }
+
+        /* Master Render Box PDF */
+        #pdf-render-box {
+            position: absolute; left: -9999px; top: -9999px;
+            width: 595px; background: #ffffff; color: #1e293b; padding: 50px 45px;
+        }
+        .pdf-title-block { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 16px;
+            border-bottom: 3px double #0f172a; 
+            padding-bottom: 16px; 
+            margin-bottom: 24px; 
+            text-align: center;
+        }
+        .pdf-logo-img {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .pdf-header-text {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .pdf-grid-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+        .pdf-grid-table td { padding: 9px 8px; border-bottom: 1px solid #e2e8f0; font-size: 11px; color: #1e293b; }
+        .pdf-grid-table tr:last-child td { border-bottom: none; }
+        .pdf-grid-table td.label-side { font-weight: 600; width: 32%; color: #475569; }
+
+        /* Responsive Mobile Layout */
+        @media(max-width: 768px) {
+            .mobile-notice { display: block; }
+            body { padding-top: 40px; }
+            .sidebar { width: 72px; padding: 20px 8px; align-items: center; }
+            .brand-top .app-name, .app-sub, .menu-item button span, .menu-section-title, .contact-box { display: none; }
+            .main-wrapper { margin-left: 72px; width: calc(100% - 72px); padding: 16px; }
+            .form-grid { grid-template-columns: 1fr; gap: 14px; }
+            .form-group.full-width { grid-column: span 1; }
+            .flow-steps { display: none; } /* Sembunyikan alur langkah teks di HP agar rapi */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Splash Screen Loader -->
+    <div class="welcome-splash" id="welcome-splash-screen">
+        <img class="splash-logo" src="https://drive.google.com/thumbnail?id=1maGet0jkFl4I76lxKVH9FZLNj9h22usX&sz=w200" alt="Logo">
+        <h1 class="splash-title" style="font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">SIAP-MAS</h1>
+        <p class="splash-subtitle" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 1px; color: #cbd5e1; max-width: 600px; padding: 0 20px;">SISTEM LAYANAN TERPADU DIGITAL</p>
+        <p class="splash-author" style="font-size: 1rem; font-weight: 700; color: #818cf8; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;">MUHAMMAD AVIE SIENNA</p>
+        <div class="splash-loader">
+            <div class="splash-bar"></div>
+        </div>
+    </div>
+
+    <div class="mobile-notice">
+        <i class="fa-solid fa-mobile-screen"></i> Tampilan HP? Disarankan aktifkan mode "Situs Desktop" agar tata letak sempurna.
+    </div>
+
+    <nav class="sidebar">
+        <div class="brand" style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+            <div class="brand-top" style="display: flex; align-items: center; gap: 12px;">
+                <img class="brand-img" src="https://drive.google.com/thumbnail?id=1maGet0jkFl4I76lxKVH9FZLNj9h22usX&sz=w200" alt="Logo" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--primary);">
+                <div style="display: flex; flex-direction: column;">
+                    <span class="app-name" style="font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; line-height: 1.1;">SIAP-MAS</span>
+                    <span class="app-sub" style="font-size: 0.65rem; color: var(--text-body); font-weight: 700; letter-spacing: 0.3px; margin-top: 2px; line-height: 1.2;">SISTEM LAYANAN TERPADU DIGITAL</span>
+                    <span class="app-author-name" style="font-size: 0.6rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; line-height: 1.2;">MUHAMMAD AVIE SIENNA</span>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="menu-section-title">Navigasi Utama</div>
+            <ul class="menu-list">
+                <li class="menu-item active" id="menu-dash" onclick="switchPanel('dashboard', 'menu-dash')">
+                    <button><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></button>
+                </li>
+                <li class="menu-item" id="menu-adu" onclick="switchPanel('pengaduan', 'menu-adu')">
+                    <button><i class="fa-solid fa-bullhorn"></i> <span>Form Pengaduan</span></button>
+                </li>
+                <li class="menu-item" id="menu-upload" onclick="switchPanel('upload-ttd', 'menu-upload')">
+                    <button><i class="fa-solid fa-file-signature"></i> <span>Verifikasi Berkas</span></button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="contact-box">
+            <div class="menu-section-title" style="margin-bottom: 4px;">Kontak Kami</div>
+            <a href="https://wa.me/6285245867094" target="_blank" class="contact-link wa">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+            <a href="https://instagram.com/avieesiennaa_" target="_blank" class="contact-link ig">
+                <i class="fa-brands fa-instagram"></i> Instagram
+            </a>
+            <a href="mailto:muhammadaviesienna.business@gmail.com" class="contact-link mail">
+                <i class="fa-solid fa-envelope"></i> Email Resmi
+            </a>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <div class="page-title"><h1 id="dynamic-title">Dashboard</h1></div>
+            <div class="controls-right">
+                <div class="live-clock" id="clock-widget">Menghubungkan...</div>
+                <button class="theme-toggle" onclick="toggleThemeSystem()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            </div>
+        </div>
+
+        <!-- Alur Progres Langkah Secara Visual -->
+        <div class="flow-progress-container">
+            <div class="flow-steps">
+                <div class="flow-line-bar"></div>
+                <div class="flow-line-progress" id="global-flow-bar"></div>
+
+                <div class="flow-step-node active" id="step-node-1">
+                    <div class="node-circle">1</div>
+                    <div class="node-label">Isi Form Pengaduan</div>
+                </div>
+                <div class="flow-step-node" id="step-node-2">
+                    <div class="node-circle">2</div>
+                    <div class="node-label">Kirim data ke WA</div>
+                </div>
+                <div class="flow-step-node" id="step-node-3">
+                    <div class="node-circle">3</div>
+                    <div class="node-label">Download Berkas PDF</div>
+                </div>
+                <div class="flow-step-node" id="step-node-4">
+                    <div class="node-circle">4</div>
+                    <div class="node-label">Tanda Tangan Basah</div>
+                </div>
+                <div class="flow-step-node" id="step-node-5">
+                    <div class="node-circle">5</div>
+                    <div class="node-label">Verifikasi & Valid Selesai</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Panel -->
+        <div class="app-panel active-panel" id="panel-dashboard">
+            <div class="grid-overview">
+                <div class="status-card">
+                    <div class="status-info"><h3>Total Laporan Masuk</h3><p id="count-total">0</p></div>
+                    <div class="status-icon" style="background: rgba(79,70,229,0.1); color: var(--primary);"><i class="fa-solid fa-folder-open"></i></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-info"><h3>Menunggu TTD</h3><p id="count-proses">0</p></div>
+                    <div class="status-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-info"><h3>Laporan Terverifikasi</h3><p id="count-selesai">0</p></div>
+                    <div class="status-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="fa-solid fa-file-circle-check"></i></div>
+                </div>
+            </div>
+
+            <div class="panel-header" style="border: none;">
+                <h2>Log Registrasi Aktivitas Pengaduan</h2>
+            </div>
+            <div class="data-table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr><th>No. Tiket</th><th>Nama Pemohon</th><th>NIK</th><th>Kategori</th><th>Status Validasi</th></tr>
+                    </thead>
+                    <tbody id="log-table-body">
+                        <tr id="empty-row"><td colspan="5" class="empty-state">Belum ada rekaman laporan dalam sistem.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Form Panel -->
+        <div class="app-panel" id="panel-pengaduan">
+            <div class="panel-header">
+                <h2>Formulir Pengaduan Masyarakat</h2>
+                <p>Silakan isi detail pengaduan Anda di bawah ini dengan lengkap dan jujur.</p>
+            </div>
+            
+            <form onsubmit="event.preventDefault(); pemicuReviewData();">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nomor Tiket Registrasi (Otomatis)</label>
+                        <input type="text" id="form-tiket-auto-display" readonly style="font-weight: 700; color: var(--primary);">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Lengkap (Sesuai KTP)</label>
+                        <input type="text" id="form-nama" placeholder="Nama pemohon..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>NIK KTP (16 Digit)</label>
+                        <input type="number" id="form-nik" placeholder="Ketik nomor NIK..." oninput="batasiInputDigitNIK(this)" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tempat Lahir</label>
+                        <input type="text" id="form-tempat-lahir" placeholder="Kota tempat lahir..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Lahir</label>
+                        <input type="date" id="form-tgl-lahir" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Kelamin</label>
+                        <select id="form-jk" required>
+                            <option value="">Pilih Jenis Kelamin...</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor WhatsApp Aktif</label>
+                        <input type="tel" id="form-phone" placeholder="Contoh: 0852xxxxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori Masalah Pengaduan</label>
+                        <input type="text" id="form-kategori" placeholder="Topik aduan..." required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Lokasi Detail Kejadian</label>
+                        <input type="text" id="form-lokasi" placeholder="Alamat lengkap lokasi kejadian..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Waktu Pencatatan Sistem</label>
+                        <input type="text" id="form-waktu-auto" readonly>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Foto Lampiran Bukti Pendukung (Opsional)</label>
+                        <input type="file" id="form-foto" accept="image/*" onchange="prosesPratinjauGambar(this)">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Uraian Deskripsi Kronologi Lengkap</label>
+                        <textarea id="form-deskripsi" rows="4" placeholder="Ketik uraian kronologi masalah di sini..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-flex-group">
+                    <button type="submit" class="btn-action pdf"><i class="fa-solid fa-magnifying-glass"></i> Langkah Selanjutnya: Tinjau Lembar Berkas</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Verification Panel -->
+        <div class="app-panel" id="panel-upload-ttd">
+            <div class="panel-header">
+                <h2>Unggah Hasil Tanda Tangan Basah (Fisik)</h2>
+                <p>Verifikasi akhir laporan dengan mengunggah foto lembar surat yang sudah dibubuhi tanda tangan basah asli.</p>
+            </div>
+            
+            <div class="notice-banner">
+                <i class="fa-solid fa-circle-info"></i> Pastikan Anda sudah mengunduh PDF di langkah sebelumnya, mencetaknya, dan menandatanganinya sebelum mengunggah.
+            </div>
+
+            <form onsubmit="event.preventDefault(); eksekusiSimpanBerkasTTD();">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Pilih Tiket Pengaduan Anda</label>
+                        <select id="upload-pilih-tiket" onchange="sinkronisasiInputManualTiket(this)">
+                            <option value="">-- Pilih Tiket Terdaftar --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Konfirmasi Manual No. Tiket</label>
+                        <input type="text" id="upload-tiket-manual" placeholder="Ketik ulang nomor tiket..." required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Berkas Surat Tanda Tangan (Format Gambar / Hasil Scan HP)</label>
+                        <input type="file" id="upload-file-fisik" accept="image/*,application/pdf" required>
+                    </div>
+                </div>
+                <div class="btn-flex-group">
+                    <button type="submit" class="btn-action wa"><i class="fa-solid fa-cloud-arrow-up"></i> Selesaikan Validasi & Kirim Berkas Fisik ke WhatsApp</button>
+                </div>
+            </form>
+        </div>
+
+        <footer class="app-footer">
+            &copy; <span id="auto-year"></span> MUHAMMAD AVIE SIENNA | SIAP-MAS (SISTEM LAYANAN TERPADU GITIAL MUHAMMAD AVIE SIENNA)
+        </footer>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="pdfModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Pratinjau Lembar Cetak Laporan</h3>
+                <button class="modal-close" onclick="tutupModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="canvas-holder"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action secondary" onclick="tutupModal()">Batal</button>
+                <button class="btn-action wa" onclick="jalankanProsedurKirimWA()"><i class="fa-brands fa-whatsapp"></i> Langkah 1: Kirim Laporan ke WA</button>
+                <button class="btn-action pdf" id="btn-download-pdf-kunci" onclick="unduhBerkasPDF()" disabled><i class="fa-solid fa-file-pdf"></i> Langkah 2: Unduh Berkas PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Rendering PDF Sembunyi -->
+    <div id="pdf-render-box">
+        <div class="pdf-title-block">
+            <img class="pdf-logo-img" src="https://drive.google.com/thumbnail?id=1maGet0jkFl4I76lxKVH9FZLNj9h22usX&sz=w200" alt="Logo">
+            <div class="pdf-header-text">
+                <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: 1px; margin: 0; line-height: 1.2;">SIAP-MAS</h2>
+                <p style="font-size: 11px; font-weight: 700; color: #1e293b; margin: 3px 0 0 0; text-transform: uppercase; letter-spacing: 0.5px;">SISTEM LAYANAN TERPADU DIGITAL</p>
+                <p style="font-size: 10px; font-weight: 600; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">MUHAMMAD AVIE SIENNA</p>
+            </div>
+            <div style="width: 65px;"></div> <!-- Penyeimbang layout -->
+        </div>
+        <div>
+            <div style="font-size: 9px; font-weight: 700; margin-bottom: 10px; color:#0f172a;" id="pdf-out-header-tiket">NOMOR REGISTRASI: -</div>
+            <h3 style="font-size: 11px; border-bottom: 1.5px solid #0f172a; padding-bottom: 4px; margin-top: 18px; margin-bottom: 10px; color:#0f172a; font-weight:700; text-transform: uppercase; letter-spacing: 0.5px;">A. IDENTITAS DATA PEMOHON</h3>
+            <table class="pdf-grid-table">
+                <tr><td class="label-side">Nama Lengkap</td><td id="pdf-out-nama">: -</td></tr>
+                <tr><td class="label-side">NIK</td><td id="pdf-out-nik">: -</td></tr>
+                <tr><td class="label-side">Tempat / Tanggal Lahir</td><td id="pdf-out-ttl">: -</td></tr>
+                <tr><td class="label-side">Jenis Kelamin</td><td id="pdf-out-jk">: -</td></tr>
+                <tr><td class="label-side">WhatsApp Kontak</td><td id="pdf-out-phone">: -</td></tr>
+            </table>
+
+            <h3 style="font-size: 10px; border-bottom: 1px solid #000; padding-bottom: 2px; margin-top: 15px; color:#0f172a; font-weight:700;">B. MATERI LAPORAN PENGADUAN</h3>
+            <table class="pdf-grid-table">
+                <tr><td class="label-side">Kategori Masalah</td><td id="pdf-out-kategori">: -</td></tr>
+                <tr><td class="label-side">Lokasi Kejadian</td><td id="pdf-out-lokasi">: -</td></tr>
+                <tr><td class="label-side">Waktu Masuk Laporan</td><td id="pdf-out-waktu">: -</td></tr>
+            </table>
+            
+            <p style="font-size: 9px; font-weight:700; margin-top:14px; margin-bottom:4px; color:#0f172a;">Uraian Deskripsi Pengaduan:</p>
+            <div id="pdf-out-deskripsi" style="font-size: 9px; background:#f8fafc; border:1px solid #cbd5e1; padding:12px; text-align:justify; color:#1e293b; line-height:1.4;">-</div>
+            
+            <div style="margin-top: 40px; display: flex; justify-content: flex-end; width: 100%; font-size: 11px;">
+                <div style="text-align: center; width: 220px; color:#0f172a;">
+                    <p id="pdf-out-tgl-bawah">Kota, Tanggal Berkas</p>
+                    <p style="margin-top: 4px;">Hormat Kami, Pemohon</p>
+                    <div style="height: 55px; border: 1px dashed #94a3b8; width:100%; margin: 8px 0; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:8px;">[Tanda Tangan Fisik Basah]</div>
+                    <p style="font-weight:700; border-bottom: 1px solid #000;" id="pdf-out-nama-bawah">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WA_TARGET = "6285245867094";
+        let globalCanvas = null;
+        let imgBase64Cache = null;
+        let currentNextTicketId = "";
+        
+        let counterTotal = 0;
+        let counterProses = 0;
+        let counterSelesai = 0;
+        let databaseTiketMap = {}; 
+        let detectedCity = "Banjarmasin"; 
+        let currentActiveData = null;
+        let localizedTimezone = "WITA";
+
+        // Fungsi memperbarui visual progress bar alur berdasarkan status pengisian berkas saat ini
+        function updateProgressFlow(stepNumber) {
+            const progressPercentages = {1: 0, 2: 25, 3: 50, 4: 75, 5: 100};
+            const bar = document.getElementById('global-flow-bar');
+            if(bar) bar.style.width = `${progressPercentages[stepNumber]}%`;
+
+            for(let i = 1; i <= 5; i++) {
+                const node = document.getElementById(`step-node-${i}`);
+                if(!node) continue;
+                if(i < stepNumber) {
+                    node.className = "flow-step-node completed";
+                } else if(i === stepNumber) {
+                    node.className = "flow-step-node active";
+                } else {
+                    node.className = "flow-step-node";
+                }
+            }
+        }
+
+        function switchPanel(panelId, menuItemId) {
+            document.querySelectorAll('.app-panel').forEach(p => p.classList.remove('active-panel'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById(`panel-${panelId}`).classList.add('active-panel');
+            document.getElementById(menuItemId).classList.add('active');
+            
+            const titles = { 'dashboard': 'Dashboard Analisis Utama', 'pengaduan': 'Formulir Pengaduan Masyarakat', 'upload-ttd': 'Verifikasi Berkas Surat Fisik' };
+            document.getElementById('dynamic-title').textContent = titles[panelId];
+
+            if(panelId === 'pengaduan') {
+                generasikanNomorTiketOtomatis();
+                updateProgressFlow(1);
+            } else if(panelId === 'upload-ttd') {
+                updateProgressFlow(4);
+            } else {
+                // Dashboard melihat total alur global
+                updateProgressFlow(1);
+            }
+        }
+
+        function batasiInputDigitNIK(inputBox) {
+            if (inputBox.value.length > 16) {
+                inputBox.value = inputBox.value.slice(0, 16);
+            }
+        }
+
+        function generasikanNomorTiketOtomatis() {
+            if(document.getElementById('form-tiket-auto-display').value) return; 
+            const tahunAktif = new Date().getFullYear();
+            const acakDigit = Math.floor(1000 + Math.random() * 9000);
+            currentNextTicketId = `REG/MAS/${tahunAktif}/${acakDigit}`;
+            document.getElementById('form-tiket-auto-display').value = currentNextTicketId;
+        }
+
+        function prosesPratinjauGambar(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) { imgBase64Cache = e.target.result; };
+                reader.readAsDataURL(file);
+            } else { imgBase64Cache = null; }
+        }
+
+        function sinkronisasiInputManualTiket(selectBox) {
+            document.getElementById('upload-tiket-manual').value = selectBox.value;
+        }
+
+        function petakanDataKeTemplate() {
+            const nama = document.getElementById('form-nama').value.trim();
+            const nik = document.getElementById('form-nik').value.trim();
+            const tempatLahir = document.getElementById('form-tempat-lahir').value.trim();
+            const tglLahir = document.getElementById('form-tgl-lahir').value;
+            const jk = document.getElementById('form-jk').value;
+            const phone = document.getElementById('form-phone').value.trim();
+            const kategori = document.getElementById('form-kategori').value.trim();
+            const lokasi = document.getElementById('form-lokasi').value.trim();
+            const deskripsi = document.getElementById('form-deskripsi').value.trim();
+
+            if (nik.length !== 16) {
+                alert('Nomor NIK KTP wajib diisi tepat 16 digit!');
+                return null;
+            }
+
+            if(!nama || !nik || !tempatLahir || !tglLahir || !jk || !phone || !kategori || !lokasi || !deskripsi) {
+                alert('Mohon isi semua kolom isian form pengaduan terlebih dahulu!');
+                return null;
+            }
+
+            const waktuSystem = document.getElementById('form-waktu-auto').value;
+
+            document.getElementById('pdf-out-header-tiket').textContent = `NOMOR REGISTRASI: ${currentNextTicketId}`;
+            document.getElementById('pdf-out-nama').textContent = `: ${nama}`;
+            document.getElementById('pdf-out-nama-bawah').textContent = nama;
+            document.getElementById('pdf-out-nik').textContent = `: ${nik}`;
+            document.getElementById('pdf-out-ttl').textContent = `: ${tempatLahir}, ${tglLahir}`;
+            document.getElementById('pdf-out-jk').textContent = `: ${jk}`;
+            document.getElementById('pdf-out-phone').textContent = `: ${phone}`;
+            document.getElementById('pdf-out-kategori').textContent = `: ${kategori}`;
+            document.getElementById('pdf-out-lokasi').textContent = `: ${lokasi}`;
+            document.getElementById('pdf-out-waktu').textContent = `: ${waktuSystem}`;
+            document.getElementById('pdf-out-deskripsi').textContent = deskripsi;
+            document.getElementById('pdf-out-tgl-bawah').textContent = `${detectedCity}, ${waktuSystem.split(" • ")[0]}`;
+
+            currentActiveData = { tiketId: currentNextTicketId, nama, nik, tempatLahir, tglLahir, jk, phone, kategori, lokasi, deskripsi, waktuSystem };
+            return currentActiveData;
+        }
+
+        function pemicuReviewData() {
+            if(!petakanDataKeTemplate()) return;
+            document.getElementById('btn-download-pdf-kunci').disabled = true;
+            updateProgressFlow(2);
+            bukaPratinjauDokumen();
+        }
+
+        function daftarkanKeSistemDashboard(data) {
+            if (databaseTiketMap[data.tiketId]) return data.tiketId;
+
+            counterTotal++;
+            counterProses++;
+            document.getElementById('count-total').textContent = counterTotal;
+            document.getElementById('count-proses').textContent = counterProses;
+
+            const emptyRow = document.getElementById('empty-row');
+            if(emptyRow) emptyRow.remove();
+
+            const ticketId = data.tiketId;
+            databaseTiketMap[ticketId] = { ...data, status: 'Menunggu Tanda Tangan' };
+
+            const selectMenu = document.getElementById('upload-pilih-tiket');
+            const opt = document.createElement('option');
+            opt.value = ticketId;
+            opt.textContent = `${ticketId} - ${data.nama}`;
+            selectMenu.appendChild(opt);
+
+            const tbody = document.getElementById('log-table-body');
+            const tr = document.createElement('tr');
+            const cleanHtmlId = ticketId.replace(/\//g,'-');
+            tr.id = `row-${cleanHtmlId}`;
+            tr.innerHTML = `
+                <td><strong>${ticketId}</strong></td>
+                <td>${data.nama}</td>
+                <td>${data.nik}</td>
+                <td>${data.kategori}</td>
+                <td><span class="badge warning" id="badge-${cleanHtmlId}">Menunggu TTD</span></td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+            return ticketId;
+        }
+
+        function jalankanProsedurKirimWA() {
+            if(!currentActiveData) return;
+            const tiket = daftarkanKeSistemDashboard(currentActiveData);
+
+            let teks = `Halo Bapak Muhammad Avie Sienna,
+
+`;
+            teks += `Ada laporan pengaduan baru masuk sistem SIAP-MAS:
+
+`;
+            teks += `🎫 Nomor Tiket: ${tiket}
+`;
+            teks += `👤 Nama Pemohon: ${currentActiveData.nama}
+`;
+            teks += `💳 NIK KTP: ${currentActiveData.nik}
+`;
+            teks += `📌 Kategori: ${currentActiveData.kategori}
+`;
+            teks += `🕒 Waktu Kirim: ${currentActiveData.waktuSystem}
+
+`;
+            teks += `Data telah tersimpan di antrean sistem. Pemohon sekarang mengunduh berkas PDF untuk dibubuhi TTD basah fisik.`;
+
+            window.open(`https://wa.me/${WA_TARGET}?text=${encodeURIComponent(teks)}`, '_blank');
+            
+            document.getElementById('btn-download-pdf-kunci').disabled = false;
+            updateProgressFlow(3);
+        }
+
+        function unduhBerkasPDF() {
+            if(!globalCanvas) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            doc.addImage(globalCanvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (globalCanvas.height * 210) / globalCanvas.width);
+            const namaFile = document.getElementById('form-nama').value.trim() || 'Laporan';
+            doc.save(`SIAP_MAS_${namaFile.replace(/\s+/g, '_')}.pdf`);
+            
+            tutupModal();
+            document.querySelector("form").reset();
+            document.getElementById('form-tiket-auto-display').value = ""; 
+            currentNextTicketId = "";
+            switchPanel('dashboard', 'menu-dash');
+            updateProgressFlow(1);
+        }
+
+        function eksekusiSimpanBerkasTTD() {
+            const tiketId = document.getElementById('upload-tiket-manual').value.trim();
+            if(!tiketId) { alert('Silakan pilih atau masukkan nomor tiket resmi Anda!'); return; }
+
+            if(databaseTiketMap[tiketId]) {
+                databaseTiketMap[tiketId].status = 'Berkas Tanda Tangan Sah';
+            }
+            
+            counterProses = Math.max(0, counterProses - 1);
+            counterSelesai++;
+            document.getElementById('count-proses').textContent = counterProses;
+            document.getElementById('count-selesai').textContent = counterSelesai;
+
+            const cleanHtmlId = tiketId.replace(/\//g,'-');
+            const badge = document.getElementById(`badge-${cleanHtmlId}`);
+            if(badge) {
+                badge.className = "badge success";
+                badge.textContent = "Selesai / Sah";
+            }
+
+            const namaClient = databaseTiketMap[tiketId] ? databaseTiketMap[tiketId].nama : "Pemohon Terdaftar";
+
+            let teks = `Halo Bapak Muhammad Avie Sienna,
+
+`;
+            teks += `✅ VERIFIKASI BERKAS TANDA TANGAN FISIK BERHASIL
+
+`;
+            teks += `🎫 No Tiket Laporan: ${tiketId}
+`;
+            teks += `👤 Nama Pemohon: ${namaClient}
+
+`;
+            teks += `Foto/Scan tanda tangan fisik basah pemohon telah berhasil diverifikasi oleh sistem dan status laporan dinyatakan SAH (Selesai).`;
+            
+            window.open(`https://wa.me/${WA_TARGET}?text=${encodeURIComponent(teks)}`, '_blank');
+
+            updateProgressFlow(5);
+            alert('Validasi sukses! Berkas laporan Anda kini dinyatakan sah.');
+
+            document.getElementById('upload-pilih-tiket').value = "";
+            document.getElementById('upload-tiket-manual').value = "";
+            document.getElementById('upload-file-fisik').value = "";
+            switchPanel('dashboard', 'menu-dash');
+        }
+
+        function bukaPratinjauDokumen() {
+            const holder = document.getElementById('canvas-holder');
+            holder.innerHTML = "<p style='text-align:center;font-size:0.85rem;color:#64748b;padding:30px;'><i class='fa-solid fa-spinner fa-spin'></i> Memproses lembar berkas cetak...</p>";
+            document.getElementById('pdfModal').classList.add('active');
+
+            html2canvas(document.getElementById('pdf-render-box'), { scale: 2 }).then(canvas => {
+                holder.innerHTML = "";
+                canvas.style.width = "100%";
+                canvas.style.height = "auto";
+                holder.appendChild(canvas);
+                globalCanvas = canvas;
+            });
+        }
+
+        function tutupModal() { 
+            document.getElementById('pdfModal').classList.remove('active'); 
+            updateProgressFlow(1);
+        }
+
+        function startClock() {
+            setInterval(() => {
+                const n = new Date();
+                const dArr = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+                const waktuString = `${n.getDate()}/${n.getMonth()+1}/${n.getFullYear()} • ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')} ${localizedTimezone}`;
+                
+                document.getElementById('clock-widget').innerHTML = `<i class="fa-regular fa-clock"></i> ${dArr[n.getDay()]}, ${waktuString}`;
+                
+                const formWaktu = document.getElementById('form-waktu-auto');
+                if(formWaktu) {
+                    formWaktu.value = `${n.getDate()} ${["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][n.getMonth()]} ${n.getFullYear()} • ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')} ${localizedTimezone}`;
+                }
+            }, 1000);
+        }
+
+        function toggleThemeSystem() {
+            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        }
+
+        window.onload = () => {
+            document.getElementById('auto-year').textContent = new Date().getFullYear();
+            startClock();
+            updateProgressFlow(1);
+
+            // Pengaturan durasi tampilan Welcome Splash Screen Loader (1.5 detik) sebelum memudar hilang
+            setTimeout(() => {
+                const splash = document.getElementById('welcome-splash-screen');
+                if(splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.remove(), 600);
+                }
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
