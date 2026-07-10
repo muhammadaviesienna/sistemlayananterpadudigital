@@ -1082,19 +1082,48 @@
             updateProgressFlow(1);
         }
 
-        function startClock() {
+function startClock() {
             setInterval(() => {
                 const n = new Date();
                 const dArr = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-                const waktuString = `${n.getDate()}/${n.getMonth()+1}/${n.getFullYear()} • ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')} ${localizedTimezone}`;
                 
+                // 1. Deteksi zona waktu otomatis dari sistem operasi/browser pengguna
+                const tzOffset = n.getTimezoneOffset();
+                let zonaWaktu = "WIB"; // Default jika tidak cocok
+                
+                if (tzOffset === -480) {
+                    zonaWaktu = "WITA"; // UTC+8
+                } else if (tzOffset === -540) {
+                    zonaWaktu = "WIT";  // UTC+9
+                } else if (tzOffset === -420) {
+                    zonaWaktu = "WIB";  // UTC+7
+                } else {
+                    // Fallback jika pengguna berada di luar zona waktu standar Indonesia
+                    const tzString = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    if (tzString.includes("Makassar") || tzString.includes("Central")) zonaWaktu = "WITA";
+                    else if (tzString.includes("Jayapura") || tzString.includes("Eastern")) zonaWaktu = "WIT";
+                    else zonaWaktu = "WIB";
+                }
+
+                // Perbarui variabel global agar sinkron dengan PDF & sistem cetak
+                localizedTimezone = zonaWaktu; 
+
+                // 2. Format komponen waktu dengan menambahkan DETIK (:ss)
+                const jam = String(n.getHours()).padStart(2, '0');
+                const menit = String(n.getMinutes()).padStart(2, '0');
+                const detik = String(n.getSeconds()).padStart(2, '0');
+                
+                const waktuString = `${n.getDate()}/${n.getMonth()+1}/${n.getFullYear()} • ${jam}:${menit}:${detik} ${localizedTimezone}`;
+                
+                // 3. Render ke Widget Kanan Atas
                 document.getElementById('clock-widget').innerHTML = `<i class="fa-regular fa-clock"></i> ${dArr[n.getDay()]}, ${waktuString}`;
                 
+                // 4. Sinkronisasi otomatis ke kolom input waktu pada Form Pengaduan
                 const formWaktu = document.getElementById('form-waktu-auto');
                 if(formWaktu) {
-                    formWaktu.value = `${n.getDate()} ${["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][n.getMonth()]} ${n.getFullYear()} • ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')} ${localizedTimezone}`;
+                    formWaktu.value = `${n.getDate()} ${["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][n.getMonth()]} ${n.getFullYear()} • ${jam}:${menit}:${detik} ${localizedTimezone}`;
                 }
-            }, 1000);
+            }, 1000); // Interval berjalan setiap 1 detik untuk memperbarui komponen detik
         }
 
         function toggleThemeSystem() {
